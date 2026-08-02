@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Music, Users, Clock } from 'lucide-react'
+import { Skeleton, SkeletonCard, SkeletonText } from '@/components/ui/Skeleton'
 
 export default function Page() {
   return (
@@ -64,6 +64,26 @@ export default function Page() {
             <p className="mt-1 text-sm">38% das reproduções</p>
           </CardBody>
         </Card>
+      </div>
+
+      {/* Skeletons */}
+      <div className="flex flex-col gap-4">
+        <p className="text-sm text-[var(--color-text-muted)]">
+          Skeletons (simulam carregamento):
+        </p>
+
+        {/* linha de texto carregando */}
+        <div className="flex items-center gap-3">
+          <Skeleton width={40} height={40} rounded="full" />
+          <SkeletonText lines={2} className="flex-1" />
+        </div>
+
+        {/* grid de cards carregando */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
       </div>
     </div>
   )
