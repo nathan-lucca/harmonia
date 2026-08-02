@@ -12,7 +12,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         className="flex min-h-screen flex-col"
       >
         <Header />
-        <main className="flex-1 p-6 pb-20" id="main-content">
+        <main
+          className="flex-1 p-6"
+          style={{ paddingBottom: '100px' }}
+          id="main-content"
+        >
           {children}
         </main>
       </div>

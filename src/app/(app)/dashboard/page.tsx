@@ -5,6 +5,7 @@ import { TopTracks } from '@/features/dashboard/components/TopTracks'
 import { mockStats } from '@/mocks/stats'
 import { formatMinutes } from '@/utils/format'
 import { mockUser } from '@/mocks/user'
+import { ListeningChart } from '@/features/dashboard/components/ListeningChart'
 
 export default function DashboardPage() {
   return (
@@ -60,6 +61,9 @@ export default function DashboardPage() {
         <TopArtists artists={mockStats.topArtists} />
         <TopTracks tracks={mockStats.topTracks} />
       </div>
+
+      {/* gráfico de área */}
+      <ListeningChart data={mockStats.dailyStats}></ListeningChart>
     </div>
   )
 }
