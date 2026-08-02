@@ -6,6 +6,7 @@ import type { PlaylistFormData } from '@/schemas/playlist.schema'
 
 interface PlaylistStore {
   playlists: Playlist[]
+  removeTrack: (playlistId: string, trackId: string) => void
 
   // CRUD
   createPlaylist: (data: PlaylistFormData) => Playlist
@@ -48,6 +49,24 @@ export const usePlaylistStore = create<PlaylistStore>()(
       deletePlaylist: (id) => {
         set((state) => ({
           playlists: state.playlists.filter((p) => p.id !== id),
+        }))
+      },
+
+      removeTrack: (playlistId, trackId) => {
+        set((state) => ({
+          playlists: state.playlists.map((p) => {
+            if (p.id !== playlistId) return p
+            const updatedTracks = p.tracks.filter((t) => t.id !== trackId)
+            return {
+              ...p,
+              tracks: updatedTracks,
+              totalDurationMs: updatedTracks.reduce(
+                (sum, t) => sum + t.durationMs,
+                0
+              ),
+              updatedAt: new Date().toISOString(),
+            }
+          }),
         }))
       },
 
