@@ -20,27 +20,43 @@ export function StatCard({
   trendValue,
 }: StatCardProps) {
   return (
-    <Card className="flex flex-col gap-3">
+    <div
+      className="flex flex-col rounded-xl border border-[var(--color-surface-600)] bg-[var(--color-surface-800)]"
+      style={{ padding: '20px', gap: '12px' }}
+    >
       <div className="flex items-center justify-between">
         <span className="text-sm text-[var(--color-text-secondary)]">
           {title}
         </span>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-brand-500)]/10">
+        <div
+          className="flex items-center justify-center rounded-lg"
+          style={{
+            width: '32px',
+            height: '32px',
+            background:
+              'color-mix(in srgb, var(--color-brand-500) 15%, transparent)',
+          }}
+        >
           <Icon
             size={16}
             className="text-[var(--color-brand-400)]"
             aria-hidden="true"
-          ></Icon>
+          />
         </div>
       </div>
 
       <div>
-        <p className="text-3xl font-bold text-[var(--color-text-primary)]">
+        <p
+          className="font-bold text-[var(--color-text-primary)]"
+          style={{ fontSize: '28px' }}
+        >
           {value}
         </p>
-
         {subtitle && (
-          <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+          <p
+            className="text-xs text-[var(--color-text-muted)]"
+            style={{ marginTop: '2px' }}
+          >
             {subtitle}
           </p>
         )}
@@ -55,10 +71,10 @@ export function StatCard({
             trend === 'neutral' && 'text-[var(--color-text-muted)]'
           )}
         >
-          <span>{trend === 'up' ? '⬆️' : trend === 'down' ? '⬇️' : '➡️'}</span>
+          <span>{trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'}</span>
           <span>{trendValue} vs período anterior</span>
         </div>
       )}
-    </Card>
+    </div>
   )
 }

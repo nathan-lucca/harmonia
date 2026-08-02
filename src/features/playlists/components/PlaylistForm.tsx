@@ -6,8 +6,6 @@ import {
   playlistSchema,
   type PlaylistFormData,
 } from '@/schemas/playlist.schema'
-import { Button } from '@/components/ui/Button'
-import { cn } from '@/utils/cn'
 
 interface PlaylistFormProps {
   defaultValues?: PlaylistFormData
@@ -25,61 +23,75 @@ export function PlaylistForm({
   submitLabel = 'Criar playlist',
 }: PlaylistFormProps) {
   const {
-    register, // conecta o input ao formulário
-    handleSubmit, // intercepta o submit e valida antes de chamar onSubmit
-    formState: { errors }, // erros de validação do Zod
+    register,
+    handleSubmit,
+    formState: { errors },
   } = useForm<PlaylistFormData>({
-    resolver: zodResolver(playlistSchema), // usa o Zod para validar
+    resolver: zodResolver(playlistSchema),
     defaultValues,
   })
 
   return (
-    // handleSubmit valida os dados antes de chamar onSubmit
-    // se houver erro, onSubmit não é chamado
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      {/* campo Nome */}
-      <div className="flex flex-col gap-1.5">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+    >
+      {/* campo nome */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <label
           htmlFor="playlist-name"
-          className="text-sm font-medium text-[var(--color-text-primary)]"
+          style={{
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'var(--color-text-primary)',
+          }}
         >
-          Nome <span className="text-[var(--color-error)]">*</span>
+          Nome <span style={{ color: 'var(--color-error)' }}>*</span>
         </label>
         <input
           id="playlist-name"
           type="text"
           placeholder="Ex: Favoritas do Mês"
-          // register conecta este input ao React Hook Form
           {...register('name')}
-          className={cn(
-            'w-full rounded-lg px-3 py-2.5 text-sm',
-            'bg-[var(--color-surface-700)]',
-            'border transition-colors',
-            'text-[var(--color-text-primary)]',
-            'placeholder:text-[var(--color-text-muted)]',
-            'focus:ring-2 focus:ring-[var(--color-brand-500)] focus:outline-none',
-            // borda vermelha se houver erro de validação
-            errors.name
-              ? 'border-[var(--color-error)]'
-              : 'border-[var(--color-surface-600)] focus:border-transparent'
-          )}
+          style={{
+            width: '100%',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            background: 'var(--color-surface-700)',
+            border: `1px solid ${errors.name ? 'var(--color-error)' : 'var(--color-surface-600)'}`,
+            color: 'var(--color-text-primary)',
+            outline: 'none',
+          }}
         />
-        {/* mensagem de erro — só aparece se houver erro */}
         {errors.name && (
-          <p className="text-xs text-[var(--color-error)]" role="alert">
+          <p
+            role="alert"
+            style={{ fontSize: '12px', color: 'var(--color-error)' }}
+          >
             {errors.name.message}
           </p>
         )}
       </div>
 
-      {/* campo Descrição */}
-      <div className="flex flex-col gap-1.5">
+      {/* campo descrição */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <label
           htmlFor="playlist-description"
-          className="text-sm font-medium text-[var(--color-text-primary)]"
+          style={{
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'var(--color-text-primary)',
+          }}
         >
-          Descrição
-          <span className="ml-1 font-normal text-[var(--color-text-muted)]">
+          Descrição{' '}
+          <span
+            style={{
+              fontSize: '13px',
+              fontWeight: 400,
+              color: 'var(--color-text-muted)',
+            }}
+          >
             (opcional)
           </span>
         </label>
@@ -88,36 +100,97 @@ export function PlaylistForm({
           placeholder="Ex: As músicas que mais ouvi esse mês"
           rows={3}
           {...register('description')}
-          className={cn(
-            'w-full resize-none rounded-lg px-3 py-2.5 text-sm',
-            'bg-[var(--color-surface-700)]',
-            'border border-[var(--color-surface-600)]',
-            'text-[var(--color-text-primary)]',
-            'placeholder:text-[var(--color-text-muted)]',
-            'focus:border-transparent focus:ring-2 focus:ring-[var(--color-brand-500)] focus:outline-none',
-            errors.description && 'border-[var(--color-error)]'
-          )}
+          style={{
+            width: '100%',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            background: 'var(--color-surface-700)',
+            border: `1px solid ${errors.description ? 'var(--color-error)' : 'var(--color-surface-600)'}`,
+            color: 'var(--color-text-primary)',
+            outline: 'none',
+            resize: 'none',
+          }}
         />
         {errors.description && (
-          <p className="text-xs text-[var(--color-error)]" role="alert">
+          <p
+            role="alert"
+            style={{ fontSize: '12px', color: 'var(--color-error)' }}
+          >
             {errors.description.message}
           </p>
         )}
       </div>
 
       {/* botões */}
-      <div className="flex justify-end gap-3 pt-2">
-        <Button
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: '12px',
+          paddingTop: '8px',
+        }}
+      >
+        <button
           type="button"
-          variant="ghost"
           onClick={onCancel}
           disabled={isLoading}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontWeight: 500,
+            background: 'transparent',
+            border: '1px solid var(--color-surface-600)',
+            color: 'var(--color-text-secondary)',
+            cursor: 'pointer',
+          }}
         >
           Cancelar
-        </Button>
-        <Button type="submit" variant="primary" isLoading={isLoading}>
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            fontWeight: 500,
+            background: 'var(--color-brand-500)',
+            border: 'none',
+            color: 'white',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            opacity: isLoading ? 0.7 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          {isLoading && (
+            <svg
+              className="animate-spin"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                opacity="0.25"
+              />
+              <path
+                fill="currentColor"
+                opacity="0.75"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
+            </svg>
+          )}
           {submitLabel}
-        </Button>
+        </button>
       </div>
     </form>
   )

@@ -61,3 +61,45 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* margem do conteúdo principal — 0 no mobile, 240px no desktop */
+.content-area {
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  .content-area {
+    margin-left: 240px;
+  }
+}
+
+/* botão hambúrguer — só aparece no mobile */
+.hamburger-btn {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .hamburger-btn {
+    display: none;
+  }
+}
+
+/* título mobile — com margem para o hambúrguer */
+.header-title-mobile {
+  display: inline-block;
+  margin-left: 44px;
+}
+
+/* título desktop — sem margem */
+.header-title-desktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .header-title-mobile {
+    display: none;
+  }
+  .header-title-desktop {
+    display: inline;
+  }
+}

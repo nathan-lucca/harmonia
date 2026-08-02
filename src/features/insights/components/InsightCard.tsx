@@ -1,12 +1,11 @@
-import { cn } from '@/utils/cn'
 import type { LucideIcon } from 'lucide-react'
 
 interface InsightCardProps {
-  label: string // ex: "artista do mês"
-  value: string // ex: "Arctic Monkeys"
-  detail?: string // ex: "420 minutos ouvidos"
+  label: string
+  value: string
+  detail?: string
   icon: LucideIcon
-  accent?: string // cor de destaque em hex
+  accent?: string
   size?: 'default' | 'large'
 }
 
@@ -20,45 +19,84 @@ export function InsightCard({
 }: InsightCardProps) {
   return (
     <div
-      className={cn(
-        'relative flex flex-col gap-3 overflow-hidden rounded-2xl p-5',
-        'bg-[var(--color-surface-800)]',
-        'border border-[var(--color-surface-600)]',
-        'transition-transform duration-200 hover:-translate-y-0.5'
-      )}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: '16px',
+        padding: '20px',
+        background: 'var(--color-surface-800)',
+        border: '1px solid var(--color-surface-600)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        transition: 'transform 0.2s',
+      }}
     >
-      {/* gradiente de fundo sutil no canto superior direito */}
+      {/* gradiente de fundo */}
       <div
-        className="pointer-events-none absolute top-0 right-0 h-32 w-32 rounded-full opacity-10 blur-2xl"
-        style={{ background: accent }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: accent,
+          opacity: 0.08,
+          filter: 'blur(32px)',
+          pointerEvents: 'none',
+        }}
       />
 
       {/* ícone */}
       <div
-        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl"
-        style={{ background: `${accent}20` }} // 20 = 12% de opacidade em hex
+        style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '10px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: `${accent}20`,
+          flexShrink: 0,
+        }}
       >
         <Icon size={18} style={{ color: accent }} aria-hidden="true" />
       </div>
 
       {/* label */}
-      <p className="text-xs font-medium tracking-wider text-[var(--color-text-muted)] uppercase">
+      <p
+        style={{
+          fontSize: '11px',
+          fontWeight: 500,
+          color: 'var(--color-text-muted)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+        }}
+      >
         {label}
       </p>
 
-      {/* valor principal — tamanho varia conforme o conteúdo */}
+      {/* valor principal */}
       <p
-        className={cn(
-          'leading-tight font-bold text-[var(--color-text-primary)]',
-          size === 'large' ? 'text-4xl' : 'text-2xl'
-        )}
+        style={{
+          fontWeight: 700,
+          color: 'var(--color-text-primary)',
+          lineHeight: 1.1,
+          fontSize: size === 'large' ? '36px' : '22px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
       >
         {value}
       </p>
 
-      {/* detalhe opcional */}
+      {/* detalhe */}
       {detail && (
-        <p className="text-sm text-[var(--color-text-secondary)]">{detail}</p>
+        <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+          {detail}
+        </p>
       )}
     </div>
   )

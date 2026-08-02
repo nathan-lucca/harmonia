@@ -24,11 +24,11 @@ function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2 py-0.5',
-        'text-sx rounded-full font-medium',
+        'inline-flex items-center rounded-full text-xs font-medium',
         variants[variant],
         className
       )}
+      style={{ padding: '2px 8px' }}
       {...props}
     >
       {children}

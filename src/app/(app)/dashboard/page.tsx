@@ -9,11 +9,14 @@ import { ListeningChart } from '@/features/dashboard/components/ListeningChart'
 
 export default function DashboardPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <div
+      className="flex flex-col gap-6"
+      style={{ maxWidth: '1200px', margin: '0 auto' }}
+    >
       {/* saudação */}
       <div>
         <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">
-          Bom dia, {mockUser.name.split(' ')[0]}! 👋
+          Bom dia, {mockUser.name.split(' ')[0]}!
         </h2>
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
           Aqui está um resumo da sua semana musical.
@@ -21,7 +24,13 @@ export default function DashboardPage() {
       </div>
 
       {/* stat cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div
+        style={{
+          display: 'grid',
+          gap: '16px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        }}
+      >
         <StatCard
           title="Minutos ouvidos"
           value={formatMinutes(mockStats.totalMinutes)}
@@ -57,7 +66,13 @@ export default function DashboardPage() {
       </div>
 
       {/* top artistas e top tracks lado a lado */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div
+        style={{
+          display: 'grid',
+          gap: '16px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        }}
+      >
         <TopArtists artists={mockStats.topArtists} />
         <TopTracks tracks={mockStats.topTracks} />
       </div>

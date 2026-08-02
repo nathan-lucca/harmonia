@@ -7,15 +7,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[var(--color-surface-900)]">
       <Sidebar />
 
-      <div
-        style={{ marginLeft: '240px' }}
-        className="flex min-h-screen flex-col"
-      >
+      {/*
+        no desktop (md+): margem esquerda de 240px para não sobrepor a sidebar
+        no mobile: sem margem, sidebar é overlay
+        usamos uma classe CSS customizada no globals.css
+      */}
+      <div className="content-area flex min-h-screen flex-col">
         <Header />
         <main
-          className="flex-1 p-6"
-          style={{ paddingBottom: '100px' }}
           id="main-content"
+          className="flex-1"
+          style={{ padding: '24px 24px 120px' }}
         >
           {children}
         </main>

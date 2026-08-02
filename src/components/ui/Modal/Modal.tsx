@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
-import { cn } from '@/utils/cn'
 
 interface ModalProps {
   isOpen: boolean
@@ -13,100 +12,106 @@ interface ModalProps {
   size?: 'sm' | 'md' | 'lg'
 }
 
-export function Modal({
-  isOpen,
-  onClose,
-  title,
-  description,
-  children,
-  size = 'md',
-}: ModalProps) {
-  // Ref para o container do modal — usado para mover o foco
+export function Modal({ isOpen, onClose, title, description, children, size = 'md' }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
 
-  // fecha o modal ao pressionar Escape
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
     }
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown)
-      // move o foco para dentro do modal ao abrir
       modalRef.current?.focus()
     }
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 
-  // bloqueia o scroll do body enquanto o modal está aberto
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
+    document.body.style.overflow = isOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
   if (!isOpen) return null
 
-  const sizes = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-  }
+  const maxWidths = { sm: '400px', md: '480px', lg: '560px' }
 
   return (
-    // overlay — fundo escurecido atrás do modal
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      // fecha ao clicar no overlay (fora do modal)
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+      }}
       onClick={onClose}
     >
-      {/* fundo semi-transparente */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      {/* overlay */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'rgba(0,0,0,0.6)',
+        backdropFilter: 'blur(4px)',
+      }} />
 
-      {/* container do modal */}
+      {/* container */}
       <div
         ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
         tabIndex={-1}
-        // para a propagação do clique — não fecha ao clicar dentro do modal
         onClick={(e) => e.stopPropagation()}
-        className={cn(
-          'relative w-full rounded-2xl',
-          'bg-[var(--color-surface-800)]',
-          'border border-[var(--color-surface-600)]',
-          'shadow-2xl shadow-black/40',
-          'flex flex-col gap-4 p-6',
-          'focus:outline-none',
-          sizes[size]
-        )}
+        style={{
+          position: 'relative',
+          width: '100%',
+          maxWidth: maxWidths[size],
+          borderRadius: '20px',
+          background: 'var(--color-surface-800)',
+          border: '1px solid var(--color-surface-600)',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+          outline: 'none',
+        }}
       >
-        {/* header do modal */}
-        <div className="flex items-start justify-between">
+        {/* header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
           <div>
             <h2
               id="modal-title"
-              className="text-lg font-semibold text-[var(--color-text-primary)]"
+              style={{ fontSize: '18px', fontWeight: 600, color: 'var(--color-text-primary)' }}
             >
               {title}
             </h2>
             {description && (
-              <p className="mt-0.5 text-sm text-[var(--color-text-secondary)]">
+              <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
                 {description}
               </p>
             )}
           </div>
 
-          {/* botão de fechar */}
           <button
             onClick={onClose}
             aria-label="Fechar modal"
-            className="-mt-1 -mr-1 rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-700)] hover:text-[var(--color-text-primary)]"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--color-text-muted)',
+              flexShrink: 0,
+              transition: 'all 0.15s',
+            }}
           >
             <X size={18} />
           </button>

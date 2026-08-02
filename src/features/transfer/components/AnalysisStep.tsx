@@ -16,32 +16,27 @@ export function AnalysisStep() {
 
   useEffect(() => {
     if (!selectedPlaylist) return
-
     setStatus('analyzing')
     setProgress(0)
 
-    // simula o progresso da análise — incrementa 2% a cada 80ms
-    // total: ~4 segundos para 100%
     const interval = setInterval(() => {
       const current = useTransferStore.getState().progress
 
       if (current >= 100) {
         clearInterval(interval)
 
-        // gera resultados simulados para cada track
         const results: TransferTrackResult[] = selectedPlaylist.tracks.map(
           (track) => {
-            // distribuição realista: 70% matched, 20% low_confidence, 10% not_found
             const random = Math.random()
             let matchStatus: TrackMatchStatus
             let confidence: number
 
             if (random < 0.7) {
               matchStatus = 'matched'
-              confidence = 0.95 + Math.random() * 0.05 // 95-100%
+              confidence = 0.95 + Math.random() * 0.05
             } else if (random < 0.9) {
               matchStatus = 'low_confidence'
-              confidence = 0.7 + Math.random() * 0.24 // 70-94%
+              confidence = 0.7 + Math.random() * 0.24
             } else {
               matchStatus = 'not_found'
               confidence = 0
@@ -64,36 +59,93 @@ export function AnalysisStep() {
   }, [])
 
   return (
-    <div className="flex flex-col items-center gap-6 py-8">
-      <div className="flex flex-col items-center gap-2">
-        <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '24px',
+        padding: '16px 0',
+      }}
+    >
+      <div style={{ textAlign: 'center' }}>
+        <h3
+          style={{
+            fontSize: '18px',
+            fontWeight: 600,
+            color: 'var(--color-text-primary)',
+          }}
+        >
           Analisando músicas...
         </h3>
-        <p className="text-center text-sm text-[var(--color-text-secondary)]">
-          Buscando correspondências na plataforma de destino. Isso pode levar
-          alguns segundos.
+        <p
+          style={{
+            fontSize: '14px',
+            color: 'var(--color-text-secondary)',
+            marginTop: '6px',
+            lineHeight: 1.5,
+          }}
+        >
+          Buscando correspondências na plataforma de destino.
         </p>
       </div>
 
-      {/* barra de progresso principal */}
-      <div className="flex w-full max-w-sm flex-col gap-2">
-        <div className="flex justify-between text-xs text-[var(--color-text-muted)]">
-          <span>Progresso</span>
-          <span>{progress}%</span>
+      {/* barra de progresso */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '360px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>
+            Progresso
+          </span>
+          <span
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            {progress}%
+          </span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-[var(--color-surface-600)]">
+        <div
+          style={{
+            height: '8px',
+            borderRadius: '9999px',
+            background: 'var(--color-surface-600)',
+            overflow: 'hidden',
+          }}
+        >
           <div
-            className="h-full rounded-full bg-[var(--color-brand-500)] transition-all duration-100"
-            style={{ width: `${progress}%` }}
+            style={{
+              height: '100%',
+              borderRadius: '9999px',
+              background: 'var(--color-brand-500)',
+              width: `${progress}%`,
+              transition: 'width 0.1s ease',
+            }}
           />
         </div>
       </div>
 
-      {/* tracks sendo analisadas */}
+      {/* lista de tracks sendo analisadas */}
       {selectedPlaylist && (
-        <div className="flex w-full max-w-sm flex-col gap-2">
+        <div
+          style={{
+            width: '100%',
+            maxWidth: '360px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+          }}
+        >
           {selectedPlaylist.tracks.map((track, index) => {
-            // calcula qual track está sendo "analisada" baseado no progresso
             const trackProgress = (index / selectedPlaylist.tracks.length) * 100
             const isDone = progress > trackProgress + 20
             const isAnalyzing = progress >= trackProgress && !isDone
@@ -101,22 +153,64 @@ export function AnalysisStep() {
             return (
               <div
                 key={track.id}
-                className="flex items-center gap-3 py-1.5 transition-opacity"
-                style={{ opacity: isDone || isAnalyzing ? 1 : 0.3 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  opacity: isDone || isAnalyzing ? 1 : 0.3,
+                  transition: 'opacity 0.3s',
+                }}
               >
-                {/* indicador de status */}
-                <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center">
+                <div
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
                   {isDone ? (
-                    <span className="text-xs text-[var(--color-success)]">
+                    <span
+                      style={{
+                        fontSize: '14px',
+                        color: 'var(--color-success)',
+                      }}
+                    >
                       ✓
                     </span>
                   ) : isAnalyzing ? (
-                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--color-brand-500)] border-t-transparent" />
+                    <div
+                      style={{
+                        width: '14px',
+                        height: '14px',
+                        borderRadius: '50%',
+                        border: '2px solid var(--color-brand-500)',
+                        borderTopColor: 'transparent',
+                      }}
+                      className="animate-spin"
+                    />
                   ) : (
-                    <div className="h-2 w-2 rounded-full bg-[var(--color-surface-600)]" />
+                    <div
+                      style={{
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: 'var(--color-surface-600)',
+                      }}
+                    />
                   )}
                 </div>
-                <span className="truncate text-sm text-[var(--color-text-secondary)]">
+                <span
+                  style={{
+                    fontSize: '14px',
+                    color: 'var(--color-text-secondary)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {track.title}
                 </span>
               </div>

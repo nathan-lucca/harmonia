@@ -1,9 +1,6 @@
 import Image from 'next/image'
 import { Check, AlertTriangle, X } from 'lucide-react'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
 import { useTransferStore } from '../store/transferStore'
-import { cn } from '@/utils/cn'
 
 export function ResultsStep() {
   const { results, setStep } = useTransferStore()
@@ -15,72 +12,137 @@ export function ResultsStep() {
   const notFound = results.filter((r) => r.matchStatus === 'not_found')
 
   return (
-    <div className="flex flex-col gap-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
-        <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
+        <h3
+          style={{
+            fontSize: '17px',
+            fontWeight: 600,
+            color: 'var(--color-text-primary)',
+          }}
+        >
           Análise concluída
         </h3>
-        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        <p
+          style={{
+            fontSize: '14px',
+            color: 'var(--color-text-secondary)',
+            marginTop: '4px',
+          }}
+        >
           Encontramos {matched.length} de {results.length} músicas.
         </p>
       </div>
 
-      {/* resumo em cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="flex flex-col items-center gap-1 rounded-xl border border-[var(--color-success)]/20 bg-[var(--color-success)]/10 p-3">
-          <span className="text-2xl font-bold text-[var(--color-success)]">
-            {matched.length}
-          </span>
-          <span className="text-xs text-[var(--color-text-muted)]">
-            encontradas
-          </span>
-        </div>
-        <div className="flex flex-col items-center gap-1 rounded-xl border border-[var(--color-warning)]/20 bg-[var(--color-warning)]/10 p-3">
-          <span className="text-2xl font-bold text-[var(--color-warning)]">
-            {lowConfidence.length}
-          </span>
-          <span className="text-xs text-[var(--color-text-muted)]">
-            incertas
-          </span>
-        </div>
-        <div className="flex flex-col items-center gap-1 rounded-xl border border-[var(--color-error)]/20 bg-[var(--color-error)]/10 p-3">
-          <span className="text-2xl font-bold text-[var(--color-error)]">
-            {notFound.length}
-          </span>
-          <span className="text-xs text-[var(--color-text-muted)]">
-            não encontradas
-          </span>
-        </div>
+      {/* resumo */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '12px',
+        }}
+      >
+        {[
+          {
+            count: matched.length,
+            label: 'encontradas',
+            color: 'var(--color-success)',
+            bg: 'color-mix(in srgb, var(--color-success) 12%, transparent)',
+          },
+          {
+            count: lowConfidence.length,
+            label: 'incertas',
+            color: 'var(--color-warning)',
+            bg: 'color-mix(in srgb, var(--color-warning) 12%, transparent)',
+          },
+          {
+            count: notFound.length,
+            label: 'não encontradas',
+            color: 'var(--color-error)',
+            bg: 'color-mix(in srgb, var(--color-error) 12%, transparent)',
+          },
+        ].map(({ count, label, color, bg }) => (
+          <div
+            key={label}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '14px',
+              borderRadius: '12px',
+              background: bg,
+            }}
+          >
+            <span style={{ fontSize: '24px', fontWeight: 700, color }}>
+              {count}
+            </span>
+            <span
+              style={{
+                fontSize: '12px',
+                color: 'var(--color-text-muted)',
+                textAlign: 'center',
+              }}
+            >
+              {label}
+            </span>
+          </div>
+        ))}
       </div>
 
       {/* lista detalhada */}
-      <div className="flex max-h-64 flex-col gap-2 overflow-y-auto pr-1">
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          maxHeight: '240px',
+          overflowY: 'auto',
+          paddingRight: '4px',
+        }}
+      >
         {results.map(({ track, matchStatus, confidence }) => (
           <div
             key={track.id}
-            className="flex items-center gap-3 rounded-lg border border-[var(--color-surface-600)] bg-[var(--color-surface-800)] p-2.5"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '10px 12px',
+              borderRadius: '10px',
+              background: 'var(--color-surface-700)',
+              border: '1px solid var(--color-surface-600)',
+            }}
           >
-            {/* ícone de status */}
+            {/* ícone status */}
             <div
-              className={cn(
-                'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full',
-                matchStatus === 'matched' && 'bg-[var(--color-success)]/20',
-                matchStatus === 'low_confidence' &&
-                  'bg-[var(--color-warning)]/20',
-                matchStatus === 'not_found' && 'bg-[var(--color-error)]/20'
-              )}
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                background:
+                  matchStatus === 'matched'
+                    ? 'color-mix(in srgb, var(--color-success) 15%, transparent)'
+                    : matchStatus === 'low_confidence'
+                      ? 'color-mix(in srgb, var(--color-warning) 15%, transparent)'
+                      : 'color-mix(in srgb, var(--color-error) 15%, transparent)',
+              }}
             >
               {matchStatus === 'matched' && (
-                <Check size={14} className="text-[var(--color-success)]" />
+                <Check size={14} style={{ color: 'var(--color-success)' }} />
               )}
               {matchStatus === 'low_confidence' && (
                 <AlertTriangle
                   size={14}
-                  className="text-[var(--color-warning)]"
+                  style={{ color: 'var(--color-warning)' }}
                 />
               )}
               {matchStatus === 'not_found' && (
-                <X size={14} className="text-[var(--color-error)]" />
+                <X size={14} style={{ color: 'var(--color-error)' }} />
               )}
             </div>
 
@@ -91,42 +153,80 @@ export function ResultsStep() {
               width={32}
               height={32}
               unoptimized
-              className="flex-shrink-0 rounded-md bg-[var(--color-surface-600)]"
+              style={{
+                borderRadius: '6px',
+                flexShrink: 0,
+                background: 'var(--color-surface-600)',
+              }}
             />
 
             {/* info */}
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: 'var(--color-text-primary)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 {track.title}
               </p>
-              <p className="text-xs text-[var(--color-text-muted)]">
+              <p style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
                 {track.artist.name}
               </p>
             </div>
 
-            {/* badge de status */}
-            <Badge
-              variant={
-                matchStatus === 'matched'
-                  ? 'success'
-                  : matchStatus === 'low_confidence'
-                    ? 'warning'
-                    : 'error'
-              }
-              className="flex-shrink-0"
+            {/* confiança */}
+            <span
+              style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                padding: '2px 8px',
+                borderRadius: '9999px',
+                flexShrink: 0,
+                color:
+                  matchStatus === 'matched'
+                    ? 'var(--color-success)'
+                    : matchStatus === 'low_confidence'
+                      ? 'var(--color-warning)'
+                      : 'var(--color-error)',
+                background:
+                  matchStatus === 'matched'
+                    ? 'color-mix(in srgb, var(--color-success) 12%, transparent)'
+                    : matchStatus === 'low_confidence'
+                      ? 'color-mix(in srgb, var(--color-warning) 12%, transparent)'
+                      : 'color-mix(in srgb, var(--color-error) 12%, transparent)',
+              }}
             >
-              {matchStatus === 'matched' && `${Math.round(confidence * 100)}%`}
-              {matchStatus === 'low_confidence' &&
-                `${Math.round(confidence * 100)}%`}
-              {matchStatus === 'not_found' && 'N/A'}
-            </Badge>
+              {matchStatus !== 'not_found'
+                ? `${Math.round(confidence * 100)}%`
+                : 'N/A'}
+            </span>
           </div>
         ))}
       </div>
 
-      <Button variant="primary" onClick={() => setStep(6)}>
+      {/* botão concluir */}
+      <button
+        onClick={() => setStep(6)}
+        style={{
+          width: '100%',
+          padding: '12px',
+          borderRadius: '10px',
+          background: 'var(--color-brand-500)',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: 500,
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'background 0.15s',
+        }}
+      >
         Concluir transferência
-      </Button>
+      </button>
     </div>
   )
 }

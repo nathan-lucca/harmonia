@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { PlaylistCard } from '@/features/playlists/components/PlaylistCard'
 import { PlaylistForm } from '@/features/playlists/components/PlaylistForm'
@@ -11,22 +10,16 @@ import type { Playlist } from '@/types/music'
 import type { PlaylistFormData } from '@/schemas/playlist.schema'
 
 export default function PlaylistsPage() {
-  const { playlists, createPlaylist, updatePlaylist, deletePlaylist } =
-    usePlaylistStore()
+  const { playlists, createPlaylist, updatePlaylist, deletePlaylist } = usePlaylistStore()
 
-  // controla qual modal está aberto
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingPlaylist, setEditingPlaylist] = useState<Playlist | null>(null)
-  const [deletingPlaylist, setDeletingPlaylist] = useState<Playlist | null>(
-    null
-  )
+  const [deletingPlaylist, setDeletingPlaylist] = useState<Playlist | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  // simula delay de API ao criar
   async function handleCreate(data: PlaylistFormData) {
     setIsLoading(true)
     await new Promise((r) => setTimeout(r, 600))
-
     createPlaylist(data)
     setIsLoading(false)
     setIsCreateOpen(false)
@@ -35,9 +28,7 @@ export default function PlaylistsPage() {
   async function handleEdit(data: PlaylistFormData) {
     if (!editingPlaylist) return
     setIsLoading(true)
-
     await new Promise((r) => setTimeout(r, 600))
-
     updatePlaylist(editingPlaylist.id, data)
     setIsLoading(false)
     setEditingPlaylist(null)
@@ -45,55 +36,92 @@ export default function PlaylistsPage() {
 
   function handleDelete() {
     if (!deletingPlaylist) return
-
     deletePlaylist(deletingPlaylist.id)
     setDeletingPlaylist(null)
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* header da página */}
-      <div className="flex items-center justify-between">
+    <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+      {/* header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
         <div>
-          <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">
+          <h2 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
             Playlists
           </h2>
-          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+          <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
             {playlists.length} playlist{playlists.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button
-          variant="primary"
-          leftIcon={<Plus size={16} />}
+
+        <button
           onClick={() => setIsCreateOpen(true)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 16px',
+            borderRadius: '10px',
+            background: 'var(--color-brand-500)',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: 500,
+            border: 'none',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'background 0.15s',
+          }}
         >
+          <Plus size={16} />
           Nova playlist
-        </Button>
+        </button>
       </div>
 
-      {/* grid de playlists */}
+      {/* conteúdo */}
       {playlists.length === 0 ? (
-        // estado vazio
-        <div className="flex flex-col items-center justify-center gap-4 py-20">
-          <span className="text-6xl">🎵</span>
-          <div className="text-center">
-            <p className="text-lg font-medium text-[var(--color-text-primary)]">
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '16px',
+          padding: '80px 0',
+        }}>
+          <span style={{ fontSize: '56px' }}>🎵</span>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: '18px', fontWeight: 500, color: 'var(--color-text-primary)' }}>
               Nenhuma playlist ainda
             </p>
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginTop: '6px' }}>
               Crie sua primeira playlist para organizar suas músicas.
             </p>
           </div>
-          <Button
-            variant="primary"
-            leftIcon={<Plus size={16} />}
+          <button
             onClick={() => setIsCreateOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              borderRadius: '10px',
+              background: 'var(--color-brand-500)',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: 500,
+              border: 'none',
+              cursor: 'pointer',
+            }}
           >
+            <Plus size={16} />
             Criar playlist
-          </Button>
+          </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div style={{
+          display: 'grid',
+          gap: '16px',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+        }}>
           {playlists.map((playlist) => (
             <PlaylistCard
               key={playlist.id}
@@ -105,7 +133,7 @@ export default function PlaylistsPage() {
         </div>
       )}
 
-      {/* modal: Criar playlist */}
+      {/* modal: criar */}
       <Modal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
@@ -119,7 +147,7 @@ export default function PlaylistsPage() {
         />
       </Modal>
 
-      {/* modal: Editar playlist */}
+      {/* modal: editar */}
       <Modal
         isOpen={!!editingPlaylist}
         onClose={() => setEditingPlaylist(null)}
@@ -137,27 +165,49 @@ export default function PlaylistsPage() {
         />
       </Modal>
 
-      {/* modal: Confirmar exclusão */}
+      {/* modal: confirmar exclusão */}
       <Modal
         isOpen={!!deletingPlaylist}
         onClose={() => setDeletingPlaylist(null)}
         title="Excluir playlist"
         size="sm"
       >
-        <p className="text-sm text-[var(--color-text-secondary)]">
+        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>
           Tem certeza que deseja excluir{' '}
-          <span className="font-semibold text-[var(--color-text-primary)]">
+          <strong style={{ color: 'var(--color-text-primary)' }}>
             {deletingPlaylist?.name}
-          </span>
+          </strong>
           ? Essa ação não pode ser desfeita.
         </p>
-        <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={() => setDeletingPlaylist(null)}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+          <button
+            onClick={() => setDeletingPlaylist(null)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: 'var(--color-text-secondary)',
+              fontSize: '14px',
+              border: '1px solid var(--color-surface-600)',
+              cursor: 'pointer',
+            }}
+          >
             Cancelar
-          </Button>
-          <Button variant="danger" onClick={handleDelete}>
+          </button>
+          <button
+            onClick={handleDelete}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              background: 'var(--color-error)',
+              color: 'white',
+              fontSize: '14px',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
             Excluir
-          </Button>
+          </button>
         </div>
       </Modal>
     </div>

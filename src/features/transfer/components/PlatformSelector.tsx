@@ -1,4 +1,4 @@
-import { cn } from '@/utils/cn'
+import { Check } from 'lucide-react'
 import { platforms, type PlatformInfo } from '@/mocks/platforms'
 import type { TransferPlatform } from '@/types/music'
 
@@ -6,7 +6,7 @@ interface PlatformSelectorProps {
   title: string
   subtitle: string
   selected: TransferPlatform | null
-  excluded?: TransferPlatform | null // plataforma que não pode ser selecionada
+  excluded?: TransferPlatform | null
   onSelect: (platform: TransferPlatform) => void
 }
 
@@ -18,17 +18,35 @@ export function PlatformSelector({
   onSelect,
 }: PlatformSelectorProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
-        <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
+        <h3
+          style={{
+            fontSize: '17px',
+            fontWeight: 600,
+            color: 'var(--color-text-primary)',
+          }}
+        >
           {title}
         </h3>
-        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        <p
+          style={{
+            fontSize: '14px',
+            color: 'var(--color-text-secondary)',
+            marginTop: '4px',
+          }}
+        >
           {subtitle}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        style={{
+          display: 'grid',
+          gap: '10px',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+        }}
+      >
         {platforms.map((platform: PlatformInfo) => {
           const isExcluded = platform.id === excluded
           const isSelected = platform.id === selected
@@ -38,35 +56,66 @@ export function PlatformSelector({
               key={platform.id}
               onClick={() => !isExcluded && onSelect(platform.id)}
               disabled={isExcluded}
-              className={cn(
-                'flex items-center gap-3 rounded-xl border p-4 text-left transition-all',
-                isSelected &&
-                  'border-[var(--color-brand-500)] bg-[var(--color-brand-500)]/10',
-                !isSelected &&
-                  !isExcluded &&
-                  'border-[var(--color-surface-600)] bg-[var(--color-surface-800)] hover:border-[var(--color-surface-600)] hover:bg-[var(--color-surface-700)]',
-                isExcluded &&
-                  'cursor-not-allowed border-[var(--color-surface-600)] bg-[var(--color-surface-800)] opacity-40'
-              )}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '14px',
+                borderRadius: '12px',
+                border: isSelected
+                  ? '2px solid var(--color-brand-500)'
+                  : '1px solid var(--color-surface-600)',
+                background: isSelected
+                  ? 'color-mix(in srgb, var(--color-brand-500) 10%, transparent)'
+                  : 'var(--color-surface-700)',
+                cursor: isExcluded ? 'not-allowed' : 'pointer',
+                opacity: isExcluded ? 0.4 : 1,
+                textAlign: 'left',
+                transition: 'all 0.15s',
+              }}
             >
-              {/* emoji como ícone da plataforma */}
-              <span className="text-2xl">{platform.emoji}</span>
-
-              <div>
-                <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+              <span style={{ fontSize: '22px', flexShrink: 0 }}>
+                {platform.emoji}
+              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: 'var(--color-text-primary)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {platform.name}
                 </p>
                 {isExcluded && (
-                  <p className="text-xs text-[var(--color-text-muted)]">
-                    já selecionada como origem
+                  <p
+                    style={{
+                      fontSize: '11px',
+                      color: 'var(--color-text-muted)',
+                      marginTop: '2px',
+                    }}
+                  >
+                    já selecionada
                   </p>
                 )}
               </div>
-
-              {/* check de selecionado */}
               {isSelected && (
-                <div className="ml-auto flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-500)]">
-                  <span className="text-xs text-white">✓</span>
+                <div
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    background: 'var(--color-brand-500)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Check size={12} style={{ color: 'white' }} />
                 </div>
               )}
             </button>

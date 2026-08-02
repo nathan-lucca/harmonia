@@ -1,42 +1,38 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import {
-  Play,
-  Shuffle,
-  Clock,
-  Trash2,
-  Music,
-  ArrowLeft,
-  Heart,
-} from 'lucide-react'
+import { Play, Shuffle, Clock, Trash2, Music, ArrowLeft } from 'lucide-react'
 import { usePlaylistStore } from '@/features/playlists/store/playlistStore'
 import { usePlayerStore } from '@/features/player/store/playerStore'
-import { Button } from '@/components/ui/Button'
-import { cn } from '@/utils/cn'
+import { Modal } from '@/components/ui/Modal'
 import { formatDuration, formatMinutes } from '@/utils/format'
 
 interface PageProps {
-  // no Next.js 15+, params é uma Promise
   params: Promise<{ id: string }>
 }
 
 export default function PlaylistDetailPage({ params }: PageProps) {
-  // use() desencapsula a Promise de params — padrão do Next.js 15
   const { id } = use(params)
-
   const { getPlaylistById, removeTrack } = usePlaylistStore()
   const { play, currentTrack, isPlaying } = usePlayerStore()
+  const [trackToRemove, setTrackToRemove] = useState<{
+    id: string
+    title: string
+  } | null>(null)
+  const [mounted, setMounted] = useState(false)
 
-  // track que está com confirmação de remoção pendente
-  const [removingTrackId, setRemovingTrackId] = useState<string | null>(null)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const playlist = getPlaylistById(id)
 
-  // se a playlist não existir, renderiza a página 404
+  // aguarda o cliente montar antes de renderizar
+  // evita hydration mismatch com dados do localStorage
+  if (!mounted) return null
   if (!playlist) notFound()
 
   const totalMinutes = Math.floor(playlist.totalDurationMs / 60000)
@@ -52,26 +48,59 @@ export default function PlaylistDetailPage({ params }: PageProps) {
     play(shuffled[0], shuffled)
   }
 
-  function handleRemoveTrack(trackId: string) {
-    removeTrack(playlist.id, trackId)
-    setRemovingTrackId(null)
+  function handleRemoveTrack() {
+    if (!trackToRemove) return
+    removeTrack(playlist.id, trackToRemove.id)
+    setTrackToRemove(null)
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div
+      style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}
+    >
       {/* botão voltar */}
       <Link
         href="/playlists"
-        className="flex w-fit items-center gap-2 text-sm text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '14px',
+          color: 'var(--color-text-muted)',
+          textDecoration: 'none',
+          width: 'fit-content',
+        }}
       >
         <ArrowLeft size={16} />
         Voltar para playlists
       </Link>
 
       {/* header da playlist */}
-      <div className="flex items-end gap-6">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          gap: '24px',
+          flexWrap: 'wrap',
+        }}
+      >
         {/* capa */}
-        <div className="h-40 w-40 flex-shrink-0 overflow-hidden rounded-xl bg-[var(--color-surface-600)]">
+        <div
+          style={{
+            width: '160px',
+            height: '160px',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            flexShrink: 0,
+            background: 'var(--color-surface-600)',
+          }}
+        >
           {playlist.coverUrl ? (
             <Image
               src={playlist.coverUrl}
@@ -79,204 +108,384 @@ export default function PlaylistDetailPage({ params }: PageProps) {
               width={160}
               height={160}
               unoptimized
-              className="h-full w-full object-cover"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <Music size={48} className="text-[var(--color-text-muted)]" />
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Music size={48} style={{ color: 'var(--color-text-muted)' }} />
             </div>
           )}
         </div>
 
         {/* info */}
-        <div className="flex min-w-0 flex-col gap-3">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            minWidth: 0,
+            flex: 1,
+          }}
+        >
           <div>
-            <p className="mb-1 text-xs font-medium tracking-wider text-[var(--color-text-muted)] uppercase">
+            <p
+              style={{
+                fontSize: '11px',
+                fontWeight: 500,
+                color: 'var(--color-text-muted)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                marginBottom: '4px',
+              }}
+            >
               Playlist
             </p>
-            <h2 className="truncate text-3xl font-bold text-[var(--color-text-primary)]">
+            <h2
+              style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                color: 'var(--color-text-primary)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {playlist.name}
             </h2>
             {playlist.description && (
-              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+              <p
+                style={{
+                  fontSize: '14px',
+                  color: 'var(--color-text-secondary)',
+                  marginTop: '4px',
+                }}
+              >
                 {playlist.description}
               </p>
             )}
           </div>
 
           {/* metadados */}
-          <div className="flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
-            <span className="flex items-center gap-1">
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              fontSize: '13px',
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Music size={12} />
-              {playlist.tracks.length} músicas
-            </span>
-            {totalMinutes > 0 && (
-              <span className="flex items-center gap-1">
-                <Clock size={12} />
-                {formatMinutes(totalMinutes)}
+              <span suppressHydrationWarning>
+                {playlist.tracks.length} músicas
               </span>
+            </div>
+            {totalMinutes > 0 && (
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
+                <Clock size={12} />
+                <span suppressHydrationWarning>
+                  {formatMinutes(totalMinutes)}
+                </span>
+              </div>
             )}
           </div>
 
-          {/* botões de ação */}
-          <div className="flex gap-2">
-            <Button
-              variant="primary"
-              leftIcon={<Play size={16} fill="white" />}
+          {/* botões */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
               onClick={handlePlayAll}
               disabled={playlist.tracks.length === 0}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                borderRadius: '10px',
+                background: 'var(--color-brand-500)',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 500,
+                border: 'none',
+                cursor:
+                  playlist.tracks.length === 0 ? 'not-allowed' : 'pointer',
+                opacity: playlist.tracks.length === 0 ? 0.5 : 1,
+              }}
             >
+              <Play size={16} fill="white" />
               Tocar tudo
-            </Button>
-            <Button
-              variant="secondary"
-              leftIcon={<Shuffle size={16} />}
+            </button>
+            <button
               onClick={handlePlayShuffled}
               disabled={playlist.tracks.length === 0}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                borderRadius: '10px',
+                background: 'var(--color-surface-700)',
+                color: 'var(--color-text-primary)',
+                fontSize: '14px',
+                fontWeight: 500,
+                border: '1px solid var(--color-surface-600)',
+                cursor:
+                  playlist.tracks.length === 0 ? 'not-allowed' : 'pointer',
+                opacity: playlist.tracks.length === 0 ? 0.5 : 1,
+              }}
             >
+              <Shuffle size={16} />
               Aleatório
-            </Button>
+            </button>
           </div>
         </div>
       </div>
 
       {/* lista de tracks */}
       {playlist.tracks.length === 0 ? (
-        // estado vazio
-        <div className="flex flex-col items-center justify-center gap-3 py-16">
-          <Music size={48} className="text-[var(--color-text-muted)]" />
-          <div className="text-center">
-            <p className="font-medium text-[var(--color-text-primary)]">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            padding: '64px 0',
+          }}
+        >
+          <Music size={48} style={{ color: 'var(--color-text-muted)' }} />
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>
               Nenhuma música ainda
             </p>
-            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            <p
+              style={{
+                fontSize: '14px',
+                color: 'var(--color-text-secondary)',
+                marginTop: '4px',
+              }}
+            >
               Adicione músicas para começar a ouvir.
             </p>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col">
-          {/* cabeçalho da tabela */}
-          <div className="grid grid-cols-[2rem_1fr_1fr_4rem_2rem] gap-4 border-b border-[var(--color-surface-600)] px-4 py-2 text-xs font-medium tracking-wider text-[var(--color-text-muted)] uppercase">
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {/* cabeçalho */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '32px 1fr 64px 32px',
+              gap: '16px',
+              padding: '8px 16px',
+              borderBottom: '1px solid var(--color-surface-600)',
+              fontSize: '11px',
+              fontWeight: 500,
+              color: 'var(--color-text-muted)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+            }}
+          >
             <span>#</span>
             <span>Título</span>
-            <span>Álbum</span>
-            <span className="flex items-center justify-end">
+            <span
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+              }}
+            >
               <Clock size={12} />
             </span>
             <span />
           </div>
 
           {/* tracks */}
-          <ul role="list">
+          <ul
+            role="list"
+            style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}
+          >
             {playlist.tracks.map((track, index) => {
               const isCurrentTrack = currentTrack?.id === track.id
-              const isRemovingThis = removingTrackId === track.id
 
               return (
                 <li
                   key={track.id}
-                  className={cn(
-                    'grid grid-cols-[2rem_1fr_1fr_4rem_2rem] gap-4 px-4 py-3',
-                    'group cursor-pointer items-center rounded-lg transition-colors',
-                    isCurrentTrack
-                      ? 'bg-[var(--color-brand-500)]/10'
-                      : 'hover:bg-[var(--color-surface-700)]'
-                  )}
                   onClick={() => play(track, playlist.tracks)}
+                  className="group hover:bg-[var(--color-surface-700)]"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '32px 1fr 64px 32px',
+                    gap: '16px',
+                    padding: '10px 16px',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    alignItems: 'center',
+                    background: isCurrentTrack
+                      ? 'color-mix(in srgb, var(--color-brand-500) 10%, transparent)'
+                      : 'transparent',
+                    transition: 'background 0.15s',
+                  }}
                 >
-                  {/* número / indicador tocando */}
-                  <span className="flex items-center justify-center">
+                  {/* número / play */}
+                  <span
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
                     {isCurrentTrack && isPlaying ? (
-                      <span className="flex h-3 items-end gap-0.5">
-                        <span className="h-2 w-0.5 animate-pulse bg-[var(--color-brand-400)]" />
-                        <span className="h-3 w-0.5 animate-pulse bg-[var(--color-brand-400)] delay-75" />
-                        <span className="h-1.5 w-0.5 animate-pulse bg-[var(--color-brand-400)] delay-150" />
+                      <span
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-end',
+                          gap: '2px',
+                          height: '12px',
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: '2px',
+                            height: '8px',
+                            background: 'var(--color-brand-400)',
+                          }}
+                          className="animate-pulse"
+                        />
+                        <span
+                          style={{
+                            width: '2px',
+                            height: '12px',
+                            background: 'var(--color-brand-400)',
+                          }}
+                          className="animate-pulse"
+                        />
+                        <span
+                          style={{
+                            width: '2px',
+                            height: '6px',
+                            background: 'var(--color-brand-400)',
+                          }}
+                          className="animate-pulse"
+                        />
                       </span>
                     ) : (
                       <>
-                        <span className="text-xs text-[var(--color-text-muted)] group-hover:hidden">
+                        <span
+                          style={{
+                            fontSize: '12px',
+                            color: 'var(--color-text-muted)',
+                          }}
+                          className="group-hover:hidden"
+                        >
                           {index + 1}
                         </span>
                         <Play
                           size={12}
-                          className="hidden fill-current text-[var(--color-text-primary)] group-hover:block"
+                          className="hidden fill-current group-hover:block"
+                          style={{ color: 'var(--color-text-primary)' }}
                         />
                       </>
                     )}
                   </span>
 
                   {/* título e artista */}
-                  <div className="flex min-w-0 items-center gap-3">
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      minWidth: 0,
+                    }}
+                  >
                     <Image
                       src={track.album.coverUrl}
                       alt={track.album.name}
                       width={36}
                       height={36}
                       unoptimized
-                      className="flex-shrink-0 rounded-md bg-[var(--color-surface-600)]"
+                      style={{
+                        borderRadius: '6px',
+                        flexShrink: 0,
+                        background: 'var(--color-surface-600)',
+                      }}
                     />
-                    <div className="min-w-0">
+                    <div style={{ minWidth: 0 }}>
                       <p
-                        className={cn(
-                          'truncate text-sm font-medium',
-                          isCurrentTrack
-                            ? 'text-[var(--color-brand-400)]'
-                            : 'text-[var(--color-text-primary)]'
-                        )}
+                        style={{
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: isCurrentTrack
+                            ? 'var(--color-brand-400)'
+                            : 'var(--color-text-primary)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
                       >
                         {track.title}
                       </p>
-                      <p className="truncate text-xs text-[var(--color-text-muted)]">
-                        {track.artist.name}
+                      <p
+                        style={{
+                          fontSize: '12px',
+                          color: 'var(--color-text-muted)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {track.artist.name} · {track.album.name}
                       </p>
                     </div>
                   </div>
 
-                  {/* álbum */}
-                  <p className="truncate text-sm text-[var(--color-text-muted)]">
-                    {track.album.name}
-                  </p>
-
                   {/* duração */}
-                  <p className="text-right text-sm text-[var(--color-text-muted)]">
+                  <p
+                    style={{
+                      fontSize: '14px',
+                      color: 'var(--color-text-muted)',
+                      textAlign: 'right',
+                    }}
+                  >
                     {formatDuration(track.durationMs)}
                   </p>
 
-                  {/* botão remover */}
+                  {/* remover */}
                   <div
-                    className="flex items-center justify-center"
-                    // para a propagação para não iniciar a reprodução ao clicar em remover
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {isRemovingThis ? (
-                      // confirmação inline de exclusão
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => handleRemoveTrack(track.id)}
-                          className="text-xs text-[var(--color-error)] hover:underline"
-                        >
-                          Sim
-                        </button>
-                        <span className="text-xs text-[var(--color-text-muted)]">
-                          /
-                        </span>
-                        <button
-                          onClick={() => setRemovingTrackId(null)}
-                          className="text-xs text-[var(--color-text-muted)] hover:underline"
-                        >
-                          Não
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setRemovingTrackId(track.id)}
-                        aria-label={`Remover ${track.title} da playlist`}
-                        className="text-[var(--color-text-muted)] opacity-0 transition-opacity group-hover:opacity-100 hover:text-[var(--color-error)]"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    )}
+                    <button
+                      onClick={() =>
+                        setTrackToRemove({ id: track.id, title: track.title })
+                      }
+                      aria-label={`Remover ${track.title}`}
+                      className="opacity-0 group-hover:opacity-100"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: 'var(--color-text-muted)',
+                        transition: 'all 0.15s',
+                        padding: '4px',
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </li>
               )
@@ -284,6 +493,61 @@ export default function PlaylistDetailPage({ params }: PageProps) {
           </ul>
         </div>
       )}
+
+      {/* modal: confirmar remoção */}
+      <Modal
+        isOpen={!!trackToRemove}
+        onClose={() => setTrackToRemove(null)}
+        title="Remover música"
+        size="sm"
+      >
+        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+          Tem certeza que deseja remover{' '}
+          <strong style={{ color: 'var(--color-text-primary)' }}>
+            {trackToRemove?.title}
+          </strong>{' '}
+          desta playlist?
+        </p>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '12px',
+            marginTop: '8px',
+          }}
+        >
+          <button
+            onClick={() => setTrackToRemove(null)}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 500,
+              background: 'transparent',
+              border: '1px solid var(--color-surface-600)',
+              color: 'var(--color-text-secondary)',
+              cursor: 'pointer',
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleRemoveTrack}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: 500,
+              background: 'var(--color-error)',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+            }}
+          >
+            Remover
+          </button>
+        </div>
+      </Modal>
     </div>
   )
 }

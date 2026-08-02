@@ -2,144 +2,359 @@
 
 import { Monitor, Moon, Sun, User, Palette, Bell } from 'lucide-react'
 import { usePreferencesStore } from '@/stores/preferencesStore'
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/Card'
-import { cn } from '@/utils/cn'
-import { mockUser } from '@/mocks/user'
 import Image from 'next/image'
+import { mockUser } from '@/mocks/user'
 
 type Theme = 'dark' | 'light' | 'system'
 
-const THEMES: { id: Theme; label: string; icon: typeof Sun }[] = [
-  { id: 'dark', label: 'Escuro', icon: Moon },
-  { id: 'light', label: 'Claro', icon: Sun },
-  { id: 'system', label: 'Sistema', icon: Monitor },
+const THEMES: {
+  id: Theme
+  label: string
+  icon: typeof Sun
+  description: string
+}[] = [
+  {
+    id: 'dark',
+    label: 'Escuro',
+    icon: Moon,
+    description: 'Fundo escuro para ambientes com pouca luz',
+  },
+  {
+    id: 'light',
+    label: 'Claro',
+    icon: Sun,
+    description: 'Fundo claro para ambientes iluminados',
+  },
+  {
+    id: 'system',
+    label: 'Sistema',
+    icon: Monitor,
+    description: 'Segue a preferência do seu sistema',
+  },
 ]
 
 export default function SettingsPage() {
   const { theme, setTheme } = usePreferencesStore()
 
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
+    <div
+      style={{
+        maxWidth: '640px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}
+    >
       {/* título */}
       <div>
-        <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">
+        <h2
+          style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: 'var(--color-text-primary)',
+          }}
+        >
           Configurações
         </h2>
-        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        <p
+          style={{
+            fontSize: '14px',
+            color: 'var(--color-text-secondary)',
+            marginTop: '4px',
+          }}
+        >
           Personalize sua experiência no Harmonia.
         </p>
       </div>
 
       {/* seção: perfil */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <User size={16} className="text-[var(--color-text-muted)]" />
-            <CardTitle>Perfil</CardTitle>
+      <div
+        style={{
+          borderRadius: '16px',
+          border: '1px solid var(--color-surface-600)',
+          background: 'var(--color-surface-800)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* header da seção */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '16px 20px',
+            borderBottom: '1px solid var(--color-surface-600)',
+          }}
+        >
+          <User size={16} style={{ color: 'var(--color-text-muted)' }} />
+          <span
+            style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            Perfil
+          </span>
+        </div>
+
+        {/* conteúdo */}
+        <div
+          style={{
+            padding: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <Image
+            src={mockUser.avatarUrl}
+            alt={mockUser.name}
+            width={56}
+            height={56}
+            unoptimized
+            style={{
+              borderRadius: '50%',
+              background: 'var(--color-surface-600)',
+              flexShrink: 0,
+            }}
+          />
+          <div>
+            <p
+              style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              {mockUser.name}
+            </p>
+            <p
+              style={{
+                fontSize: '13px',
+                color: 'var(--color-text-muted)',
+                marginTop: '2px',
+              }}
+            >
+              @{mockUser.username}
+            </p>
           </div>
-        </CardHeader>
-        <CardBody>
-          <div className="flex items-center gap-4">
-            <Image
-              src={mockUser.avatarUrl}
-              alt={mockUser.name}
-              width={56}
-              height={56}
-              unoptimized
-              className="rounded-full bg-[var(--color-surface-600)]"
-            />
-            <div>
-              <p className="font-semibold text-[var(--color-text-primary)]">
-                {mockUser.name}
-              </p>
-              <p className="text-sm text-[var(--color-text-muted)]">
-                @{mockUser.username}
-              </p>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
 
       {/* seção: aparência */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Palette size={16} className="text-[var(--color-text-muted)]" />
-            <CardTitle>Aparência</CardTitle>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              Tema da interface
-            </p>
+      <div
+        style={{
+          borderRadius: '16px',
+          border: '1px solid var(--color-surface-600)',
+          background: 'var(--color-surface-800)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '16px 20px',
+            borderBottom: '1px solid var(--color-surface-600)',
+          }}
+        >
+          <Palette size={16} style={{ color: 'var(--color-text-muted)' }} />
+          <span
+            style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            Aparência
+          </span>
+        </div>
 
-            {/* seletor de tema */}
-            <div className="grid grid-cols-3 gap-3">
-              {THEMES.map(({ id, label, icon: Icon }) => (
-                <button
-                  key={id}
-                  onClick={() => setTheme(id)}
-                  className={cn(
-                    'flex flex-col items-center gap-2 rounded-xl border p-4 transition-all',
+        {/* conteúdo */}
+        <div
+          style={{
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            Tema da interface
+          </p>
+
+          <div
+            style={{
+              display: 'grid',
+              gap: '10px',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+            }}
+          >
+            {THEMES.map(({ id, label, icon: Icon, description }) => (
+              <button
+                key={id}
+                onClick={() => setTheme(id)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border:
                     theme === id
-                      ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-500)]/10'
-                      : 'border-[var(--color-surface-600)] bg-[var(--color-surface-700)] hover:bg-[var(--color-surface-600)]'
-                  )}
-                >
-                  <Icon
-                    size={20}
-                    className={
+                      ? '2px solid var(--color-brand-500)'
+                      : '1px solid var(--color-surface-600)',
+                  background:
+                    theme === id
+                      ? 'color-mix(in srgb, var(--color-brand-500) 10%, transparent)'
+                      : 'var(--color-surface-700)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <Icon
+                  size={20}
+                  style={{
+                    color:
                       theme === id
-                        ? 'text-[var(--color-brand-400)]'
-                        : 'text-[var(--color-text-muted)]'
-                    }
-                  />
-                  <span
-                    className={cn(
-                      'text-xs font-medium',
-                      theme === id
-                        ? 'text-[var(--color-brand-400)]'
-                        : 'text-[var(--color-text-secondary)]'
-                    )}
+                        ? 'var(--color-brand-400)'
+                        : 'var(--color-text-muted)',
+                  }}
+                />
+                <div>
+                  <p
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color:
+                        theme === id
+                          ? 'var(--color-brand-400)'
+                          : 'var(--color-text-primary)',
+                    }}
                   >
                     {label}
-                  </span>
-                </button>
-              ))}
-            </div>
+                  </p>
+                  <p
+                    style={{
+                      fontSize: '11px',
+                      color: 'var(--color-text-muted)',
+                      marginTop: '2px',
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {description}
+                  </p>
+                </div>
+              </button>
+            ))}
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
 
-      {/* seção: notificações — placeholder */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Bell size={16} className="text-[var(--color-text-muted)]" />
-            <CardTitle>Notificações</CardTitle>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <div className="flex items-center justify-between py-1">
+      {/* seção: notificações */}
+      <div
+        style={{
+          borderRadius: '16px',
+          border: '1px solid var(--color-surface-600)',
+          background: 'var(--color-surface-800)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '16px 20px',
+            borderBottom: '1px solid var(--color-surface-600)',
+          }}
+        >
+          <Bell size={16} style={{ color: 'var(--color-text-muted)' }} />
+          <span
+            style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+            }}
+          >
+            Notificações
+          </span>
+        </div>
+
+        {/* conteúdo */}
+        <div style={{ padding: '20px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+            }}
+          >
             <div>
-              <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                Notificações de transferência
+              <p
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                Transferências concluídas
               </p>
-              <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+              <p
+                style={{
+                  fontSize: '13px',
+                  color: 'var(--color-text-muted)',
+                  marginTop: '2px',
+                }}
+              >
                 Avisar quando uma transferência for concluída
               </p>
             </div>
-            {/* toggle visual — sem lógica por enquanto */}
-            <div className="flex h-6 w-10 cursor-pointer items-center rounded-full bg-[var(--color-brand-500)] px-1">
-              <div className="ml-auto h-4 w-4 rounded-full bg-white" />
+            {/* toggle visual */}
+            <div
+              style={{
+                width: '44px',
+                height: '24px',
+                borderRadius: '9999px',
+                background: 'var(--color-brand-500)',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '2px',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              <div
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: 'white',
+                  marginLeft: 'auto',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                }}
+              />
             </div>
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
 
-      {/* versão do app */}
-      <p className="text-center text-xs text-[var(--color-text-muted)]">
+      {/* versão */}
+      <p
+        style={{
+          fontSize: '12px',
+          color: 'var(--color-text-muted)',
+          textAlign: 'center',
+        }}
+      >
         Harmonia v1.0.0 · Feito com 💜 por Nathan Lucca
       </p>
     </div>

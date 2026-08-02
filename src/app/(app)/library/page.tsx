@@ -17,7 +17,6 @@ import {
   mockGenres,
 } from '@/mocks/library'
 
-// tabs disponíveis da biblioteca
 type LibraryTab = 'tracks' | 'artists' | 'albums'
 
 const TABS: { id: LibraryTab; label: string }[] = [
@@ -29,8 +28,6 @@ const TABS: { id: LibraryTab; label: string }[] = [
 export default function LibraryPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-
-  // lê a tab ativa da URL — padrão 'tracks'
   const activeTab = (searchParams.get('tab') as LibraryTab) ?? 'tracks'
 
   const [search, setSearch] = useState('')
@@ -38,12 +35,9 @@ export default function LibraryPage() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const [isPending, startTransition] = useTransition()
 
-  // debounce de 300ms na busca — só filtra quando o usuário para de digitar
   const debouncedSearch = useDebounce(search, 300)
-
   const { play, currentTrack, isPlaying } = usePlayerStore()
 
-  // troca de tab via URL
   function handleTabChange(tab: LibraryTab) {
     startTransition(() => {
       router.push(`/library?tab=${tab}`)
@@ -52,7 +46,6 @@ export default function LibraryPage() {
     })
   }
 
-  // filtra tracks por busca e gênero
   const filteredTracks = useMemo(() => {
     return mockTracks.filter((track) => {
       const matchesSearch =
@@ -62,15 +55,12 @@ export default function LibraryPage() {
           .toLowerCase()
           .includes(debouncedSearch.toLowerCase()) ||
         track.album.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-
       const matchesGenre =
         !selectedGenre || track.genres.includes(selectedGenre)
-
       return matchesSearch && matchesGenre
     })
   }, [debouncedSearch, selectedGenre])
 
-  // filtra artistas por busca
   const filteredArtists = useMemo(() => {
     return mockArtists.filter(
       (artist) =>
@@ -79,7 +69,6 @@ export default function LibraryPage() {
     )
   }, [debouncedSearch])
 
-  // filtra álbuns por busca
   const filteredAlbums = useMemo(() => {
     return mockAlbums.filter(
       (album) =>
@@ -90,43 +79,88 @@ export default function LibraryPage() {
   }, [debouncedSearch])
 
   return (
-    <div className="flex flex-col gap-6">
+    <div
+      style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}
+    >
       {/* título */}
       <div>
-        <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">
+        <h2
+          style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: 'var(--color-text-primary)',
+          }}
+        >
           Biblioteca
         </h2>
-        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+        <p
+          style={{
+            fontSize: '14px',
+            color: 'var(--color-text-secondary)',
+            marginTop: '4px',
+          }}
+        >
           Toda a sua música em um só lugar.
         </p>
       </div>
 
       {/* tabs */}
-      <div className="flex gap-1 border-b border-[var(--color-surface-600)]">
+      <div
+        style={{
+          borderBottom: '1px solid var(--color-surface-600)',
+          display: 'flex',
+          gap: '4px',
+        }}
+      >
         {TABS.map(({ id, label }) => (
           <button
             key={id}
             onClick={() => handleTabChange(id)}
-            className={cn(
-              'px-4 py-2.5 text-sm font-medium transition-colors',
-              '-mb-px border-b-2',
-              activeTab === id
-                ? 'border-[var(--color-brand-500)] text-[var(--color-brand-400)]'
-                : 'border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-            )}
+            style={{
+              padding: '10px 16px',
+              fontSize: '14px',
+              fontWeight: 500,
+              borderTop: 'none',
+              borderLeft: 'none',
+              borderRight: 'none',
+              borderBottom:
+                activeTab === id
+                  ? '2px solid var(--color-brand-500)'
+                  : '2px solid transparent',
+              marginBottom: '-1px',
+              color:
+                activeTab === id
+                  ? 'var(--color-brand-400)'
+                  : 'var(--color-text-secondary)',
+              background: 'none',
+              cursor: 'pointer',
+              transition: 'color 0.15s',
+            }}
           >
             {label}
           </button>
         ))}
       </div>
 
-      {/* barra de busca e controles */}
-      <div className="flex flex-wrap items-center gap-3">
+      {/* busca + alternância */}
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
         {/* campo de busca */}
-        <div className="relative min-w-48 flex-1">
+        <div style={{ position: 'relative', flex: 1 }}>
           <Search
             size={16}
-            className="absolute top-1/2 left-3 -translate-y-1/2 text-[var(--color-text-muted)]"
+            style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--color-text-muted)',
+            }}
           />
           <input
             type="text"
@@ -139,109 +173,142 @@ export default function LibraryPage() {
                   ? 'Buscar artistas...'
                   : 'Buscar álbuns...'
             }
-            className={cn(
-              'w-full rounded-lg py-2.5 pr-9 pl-9 text-sm',
-              'bg-[var(--color-surface-700)]',
-              'border border-[var(--color-surface-600)]',
-              'text-[var(--color-text-primary)]',
-              'placeholder:text-[var(--color-text-muted)]',
-              'focus:border-transparent focus:ring-2 focus:ring-[var(--color-brand-500)] focus:outline-none'
-            )}
+            style={{
+              width: '100%',
+              padding: '10px 36px',
+              fontSize: '14px',
+              borderRadius: '10px',
+              background: 'var(--color-surface-700)',
+              border: '1px solid var(--color-surface-600)',
+              color: 'var(--color-text-primary)',
+              outline: 'none',
+            }}
           />
-          {/* botão para limpar a busca */}
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute top-1/2 right-3 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
               aria-label="Limpar busca"
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'var(--color-text-muted)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+              }}
             >
               <X size={14} />
             </button>
           )}
         </div>
 
-        {/* alternância lista / grade */}
-        <div className="flex overflow-hidden rounded-lg border border-[var(--color-surface-600)]">
-          <button
-            onClick={() => setViewMode('list')}
-            aria-label="Visualização em lista"
-            className={cn(
-              'p-2.5 transition-colors',
-              viewMode === 'list'
-                ? 'bg-[var(--color-surface-600)] text-[var(--color-text-primary)]'
-                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
-            )}
-          >
-            <List size={16} />
-          </button>
-          <button
-            onClick={() => setViewMode('grid')}
-            aria-label="Visualização em grade"
-            className={cn(
-              'p-2.5 transition-colors',
-              viewMode === 'grid'
-                ? 'bg-[var(--color-surface-600)] text-[var(--color-text-primary)]'
-                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
-            )}
-          >
-            <LayoutGrid size={16} />
-          </button>
+        {/* lista / grade */}
+        <div
+          style={{
+            display: 'flex',
+            border: '1px solid var(--color-surface-600)',
+            borderRadius: '10px',
+            overflow: 'hidden',
+          }}
+        >
+          {[
+            { mode: 'list' as const, Icon: List, label: 'Lista' },
+            { mode: 'grid' as const, Icon: LayoutGrid, label: 'Grade' },
+          ].map(({ mode, Icon, label }) => (
+            <button
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              aria-label={`Visualização em ${label}`}
+              style={{
+                padding: '8px 10px',
+                background:
+                  viewMode === mode
+                    ? 'var(--color-surface-600)'
+                    : 'transparent',
+                color:
+                  viewMode === mode
+                    ? 'var(--color-text-primary)'
+                    : 'var(--color-text-muted)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              <Icon size={16} />
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* filtros de gênero — só aparece na aba de músicas */}
+      {/* filtros de gênero */}
       {activeTab === 'tracks' && (
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setSelectedGenre(null)}
-            className={cn(
-              'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-              !selectedGenre
-                ? 'bg-[var(--color-brand-500)] text-white'
-                : 'bg-[var(--color-surface-700)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-            )}
-          >
-            Todos
-          </button>
-          {mockGenres.map((genre) => (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {[
+            { id: null, label: 'Todos' },
+            ...mockGenres.map((g) => ({ id: g, label: g })),
+          ].map(({ id, label }) => (
             <button
-              key={genre}
-              onClick={() =>
-                setSelectedGenre(genre === selectedGenre ? null : genre)
-              }
-              className={cn(
-                'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                selectedGenre === genre
-                  ? 'bg-[var(--color-brand-500)] text-white'
-                  : 'bg-[var(--color-surface-700)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-              )}
+              key={label}
+              onClick={() => setSelectedGenre(id)}
+              style={{
+                padding: '4px 12px',
+                borderRadius: '9999px',
+                fontSize: '12px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                border: 'none',
+                transition: 'all 0.15s',
+                background:
+                  selectedGenre === id
+                    ? 'var(--color-brand-500)'
+                    : 'var(--color-surface-700)',
+                color:
+                  selectedGenre === id
+                    ? 'white'
+                    : 'var(--color-text-secondary)',
+              }}
             >
-              {genre}
+              {label}
             </button>
           ))}
         </div>
       )}
 
-      {/* conteúdo da tab ativa */}
+      {/* conteúdo */}
       {isPending ? (
-        // skeleton enquanto a tab carrega
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div
+          style={{
+            display: 'grid',
+            gap: '16px',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+          }}
+        >
           {Array.from({ length: 8 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
       ) : (
         <>
-          {/* aba: músicas */}
+          {/* ── músicas ── */}
           {activeTab === 'tracks' && (
             <>
               {filteredTracks.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-16">
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '64px 0',
+                  }}
+                >
                   <Search
                     size={40}
-                    className="text-[var(--color-text-muted)]"
+                    style={{ color: 'var(--color-text-muted)' }}
                   />
-                  <p className="text-[var(--color-text-secondary)]">
+                  <p style={{ color: 'var(--color-text-secondary)' }}>
                     Nenhuma música encontrada para "{debouncedSearch}"
                   </p>
                   <button
@@ -249,44 +316,105 @@ export default function LibraryPage() {
                       setSearch('')
                       setSelectedGenre(null)
                     }}
-                    className="text-sm text-[var(--color-brand-400)] hover:underline"
+                    style={{
+                      fontSize: '14px',
+                      color: 'var(--color-brand-400)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
                   >
                     Limpar filtros
                   </button>
                 </div>
               ) : viewMode === 'list' ? (
-                // visualização em lista
-                <ul role="list" className="flex flex-col">
+                <ul
+                  role="list"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                  }}
+                >
                   {filteredTracks.map((track, index) => {
                     const isCurrentTrack = currentTrack?.id === track.id
                     return (
                       <li
                         key={track.id}
                         onClick={() => play(track, filteredTracks)}
-                        className={cn(
-                          'flex items-center gap-4 rounded-lg px-3 py-2.5',
-                          'group cursor-pointer transition-colors',
-                          isCurrentTrack
-                            ? 'bg-[var(--color-brand-500)]/10'
-                            : 'hover:bg-[var(--color-surface-700)]'
-                        )}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '8px 10px',
+                          borderRadius: '10px',
+                          cursor: 'pointer',
+                          background: isCurrentTrack
+                            ? 'color-mix(in srgb, var(--color-brand-500) 10%, transparent)'
+                            : 'transparent',
+                          transition: 'background 0.15s',
+                        }}
+                        className="group hover:bg-[var(--color-surface-700)]"
                       >
                         {/* número / play */}
-                        <span className="flex w-5 flex-shrink-0 items-center justify-center">
+                        <span
+                          style={{
+                            width: '18px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                          }}
+                        >
                           {isCurrentTrack && isPlaying ? (
-                            <span className="flex h-3 items-end gap-0.5">
-                              <span className="h-2 w-0.5 animate-pulse bg-[var(--color-brand-400)]" />
-                              <span className="h-3 w-0.5 animate-pulse bg-[var(--color-brand-400)] delay-75" />
-                              <span className="h-1.5 w-0.5 animate-pulse bg-[var(--color-brand-400)] delay-150" />
+                            <span
+                              style={{
+                                display: 'flex',
+                                alignItems: 'flex-end',
+                                gap: '2px',
+                                height: '12px',
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: '2px',
+                                  height: '8px',
+                                  background: 'var(--color-brand-400)',
+                                }}
+                                className="animate-pulse"
+                              />
+                              <span
+                                style={{
+                                  width: '2px',
+                                  height: '12px',
+                                  background: 'var(--color-brand-400)',
+                                }}
+                                className="animate-pulse"
+                              />
+                              <span
+                                style={{
+                                  width: '2px',
+                                  height: '6px',
+                                  background: 'var(--color-brand-400)',
+                                }}
+                                className="animate-pulse"
+                              />
                             </span>
                           ) : (
                             <>
-                              <span className="text-xs text-[var(--color-text-muted)] group-hover:hidden">
+                              <span
+                                style={{
+                                  fontSize: '12px',
+                                  color: 'var(--color-text-muted)',
+                                }}
+                                className="group-hover:hidden"
+                              >
                                 {index + 1}
                               </span>
                               <Play
                                 size={12}
-                                className="hidden fill-current text-[var(--color-text-primary)] group-hover:block"
+                                className="hidden fill-current group-hover:block"
+                                style={{ color: 'var(--color-text-primary)' }}
                               />
                             </>
                           )}
@@ -299,44 +427,71 @@ export default function LibraryPage() {
                           width={36}
                           height={36}
                           unoptimized
-                          className="flex-shrink-0 rounded-md bg-[var(--color-surface-600)]"
+                          style={{
+                            borderRadius: '6px',
+                            flexShrink: 0,
+                            background: 'var(--color-surface-600)',
+                          }}
                         />
 
                         {/* título e artista */}
-                        <div className="min-w-0 flex-1">
+                        <div style={{ flex: 1, minWidth: 0 }}>
                           <p
-                            className={cn(
-                              'truncate text-sm font-medium',
-                              isCurrentTrack
-                                ? 'text-[var(--color-brand-400)]'
-                                : 'text-[var(--color-text-primary)]'
-                            )}
+                            style={{
+                              fontSize: '14px',
+                              fontWeight: 500,
+                              color: isCurrentTrack
+                                ? 'var(--color-brand-400)'
+                                : 'var(--color-text-primary)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
                           >
                             {track.title}
                           </p>
-                          <p className="truncate text-xs text-[var(--color-text-muted)]">
+                          <p
+                            style={{
+                              fontSize: '12px',
+                              color: 'var(--color-text-muted)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
                             {track.artist.name} · {track.album.name}
                           </p>
                         </div>
 
-                        {/* gênero */}
-                        <Badge className="hidden flex-shrink-0 sm:flex">
-                          {track.genres[0]}
-                        </Badge>
+                        {/* badge gênero — oculto em mobile */}
+                        <span className="hidden sm:block">
+                          <Badge>{track.genres[0]}</Badge>
+                        </span>
 
                         {/* coração */}
                         <Heart
                           size={14}
-                          className={cn(
-                            'flex-shrink-0',
-                            track.isLiked
-                              ? 'fill-[var(--color-brand-500)] text-[var(--color-brand-500)]'
-                              : 'text-[var(--color-text-muted)]'
-                          )}
+                          style={{
+                            flexShrink: 0,
+                            color: track.isLiked
+                              ? 'var(--color-brand-500)'
+                              : 'var(--color-text-muted)',
+                            fill: track.isLiked
+                              ? 'var(--color-brand-500)'
+                              : 'none',
+                          }}
                         />
 
                         {/* duração */}
-                        <span className="w-8 flex-shrink-0 text-right text-xs text-[var(--color-text-muted)]">
+                        <span
+                          style={{
+                            fontSize: '12px',
+                            color: 'var(--color-text-muted)',
+                            width: '32px',
+                            textAlign: 'right',
+                            flexShrink: 0,
+                          }}
+                        >
                           {formatDuration(track.durationMs)}
                         </span>
                       </li>
@@ -344,15 +499,29 @@ export default function LibraryPage() {
                   })}
                 </ul>
               ) : (
-                // visualização em grade
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                <div
+                  style={{
+                    display: 'grid',
+                    gap: '16px',
+                    gridTemplateColumns:
+                      'repeat(auto-fill, minmax(150px, 1fr))',
+                  }}
+                >
                   {filteredTracks.map((track) => (
                     <div
                       key={track.id}
                       onClick={() => play(track, filteredTracks)}
-                      className="group cursor-pointer overflow-hidden rounded-xl border border-[var(--color-surface-600)] bg-[var(--color-surface-800)] transition-colors hover:bg-[var(--color-surface-700)]"
+                      className="group"
+                      style={{
+                        borderRadius: '12px',
+                        border: '1px solid var(--color-surface-600)',
+                        background: 'var(--color-surface-800)',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        transition: 'background 0.15s',
+                      }}
                     >
-                      <div className="relative aspect-square">
+                      <div style={{ position: 'relative', aspectRatio: '1' }}>
                         <Image
                           src={track.album.coverUrl}
                           alt={track.album.name}
@@ -361,7 +530,17 @@ export default function LibraryPage() {
                           className="object-cover"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-brand-500)]">
+                          <div
+                            style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '50%',
+                              background: 'var(--color-brand-500)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
                             <Play
                               size={16}
                               fill="white"
@@ -370,11 +549,29 @@ export default function LibraryPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="p-3">
-                        <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">
+                      <div style={{ padding: '12px' }}>
+                        <p
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            color: 'var(--color-text-primary)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
                           {track.title}
                         </p>
-                        <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)]">
+                        <p
+                          style={{
+                            fontSize: '12px',
+                            color: 'var(--color-text-muted)',
+                            marginTop: '2px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
                           {track.artist.name}
                         </p>
                       </div>
@@ -385,40 +582,92 @@ export default function LibraryPage() {
             </>
           )}
 
-          {/* aba: artistas */}
+          {/* ── artistas ── */}
           {activeTab === 'artists' && (
             <>
               {filteredArtists.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-16">
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '64px 0',
+                  }}
+                >
                   <Search
                     size={40}
-                    className="text-[var(--color-text-muted)]"
+                    style={{ color: 'var(--color-text-muted)' }}
                   />
-                  <p className="text-[var(--color-text-secondary)]">
+                  <p style={{ color: 'var(--color-text-secondary)' }}>
                     Nenhum artista encontrado.
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                <div
+                  style={{
+                    display: 'grid',
+                    gap: '16px',
+                    gridTemplateColumns:
+                      'repeat(auto-fill, minmax(140px, 1fr))',
+                  }}
+                >
                   {filteredArtists.map((artist) => (
                     <div
                       key={artist.id}
-                      className="group flex cursor-pointer flex-col items-center gap-3 rounded-xl border border-[var(--color-surface-600)] bg-[var(--color-surface-800)] p-4 transition-colors hover:bg-[var(--color-surface-700)]"
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        border: '1px solid var(--color-surface-600)',
+                        background: 'var(--color-surface-800)',
+                        cursor: 'pointer',
+                        transition: 'background 0.15s',
+                      }}
+                      className="hover:bg-[var(--color-surface-700)]"
                     >
-                      <div className="relative h-20 w-20">
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '72px',
+                          height: '72px',
+                        }}
+                      >
                         <Image
                           src={artist.imageUrl}
                           alt={artist.name}
                           fill
                           unoptimized
-                          className="rounded-full bg-[var(--color-surface-600)] object-cover"
+                          style={{
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            background: 'var(--color-surface-600)',
+                          }}
                         />
                       </div>
-                      <div className="text-center">
-                        <p className="w-full truncate text-sm font-medium text-[var(--color-text-primary)]">
+                      <div style={{ textAlign: 'center', width: '100%' }}>
+                        <p
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            color: 'var(--color-text-primary)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
                           {artist.name}
                         </p>
-                        <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+                        <p
+                          style={{
+                            fontSize: '12px',
+                            color: 'var(--color-text-muted)',
+                            marginTop: '2px',
+                          }}
+                        >
                           {formatNumber(artist.monthlyListeners)} ouvintes
                         </p>
                       </div>
@@ -429,27 +678,50 @@ export default function LibraryPage() {
             </>
           )}
 
-          {/* aba: álbuns */}
+          {/* ── álbuns ── */}
           {activeTab === 'albums' && (
             <>
               {filteredAlbums.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-16">
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '64px 0',
+                  }}
+                >
                   <Search
                     size={40}
-                    className="text-[var(--color-text-muted)]"
+                    style={{ color: 'var(--color-text-muted)' }}
                   />
-                  <p className="text-[var(--color-text-secondary)]">
+                  <p style={{ color: 'var(--color-text-secondary)' }}>
                     Nenhum álbum encontrado.
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                <div
+                  style={{
+                    display: 'grid',
+                    gap: '16px',
+                    gridTemplateColumns:
+                      'repeat(auto-fill, minmax(150px, 1fr))',
+                  }}
+                >
                   {filteredAlbums.map((album) => (
                     <div
                       key={album.id}
-                      className="group cursor-pointer overflow-hidden rounded-xl border border-[var(--color-surface-600)] bg-[var(--color-surface-800)] transition-colors hover:bg-[var(--color-surface-700)]"
+                      style={{
+                        borderRadius: '12px',
+                        border: '1px solid var(--color-surface-600)',
+                        background: 'var(--color-surface-800)',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        transition: 'background 0.15s',
+                      }}
+                      className="hover:bg-[var(--color-surface-700)]"
                     >
-                      <div className="relative aspect-square">
+                      <div style={{ position: 'relative', aspectRatio: '1' }}>
                         <Image
                           src={album.coverUrl}
                           alt={album.name}
@@ -458,11 +730,29 @@ export default function LibraryPage() {
                           className="object-cover"
                         />
                       </div>
-                      <div className="p-3">
-                        <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">
+                      <div style={{ padding: '12px' }}>
+                        <p
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            color: 'var(--color-text-primary)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
                           {album.name}
                         </p>
-                        <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)]">
+                        <p
+                          style={{
+                            fontSize: '12px',
+                            color: 'var(--color-text-muted)',
+                            marginTop: '2px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
                           {album.artist.name} · {album.releaseYear}
                         </p>
                       </div>
