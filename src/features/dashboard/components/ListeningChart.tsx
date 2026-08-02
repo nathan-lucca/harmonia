@@ -8,7 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  type TooltipProps,
 } from 'recharts'
 import { formatMinutes } from '@/utils/format'
 import type { DailyStat } from '@/types/stats'
@@ -17,11 +16,17 @@ interface ListeningChartProps {
   data: DailyStat[]
 }
 
-function CustomTooltip({
-  active,
-  payload,
-  label,
-}: TooltipProps<number, string>) {
+interface TooltipPayload {
+  value: number
+}
+
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: TooltipPayload[]
+  label?: string
+}
+
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
 
   return (
@@ -36,7 +41,7 @@ function CustomTooltip({
         {label}
       </p>
       <p className="text-sm font-semibold text-[var(--color-text-primary)]">
-        {formatMinutes(payload[0].value as number)}
+        {formatMinutes(payload[0].value)}
       </p>
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useTransition, Suspense } from 'react'
 import Image from 'next/image'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Search, LayoutGrid, List, Play, Heart, X } from 'lucide-react'
@@ -25,7 +25,7 @@ const TABS: { id: LibraryTab; label: string }[] = [
   { id: 'albums', label: 'Álbuns' },
 ]
 
-export default function LibraryPage() {
+function LibraryContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const activeTab = (searchParams.get('tab') as LibraryTab) ?? 'tracks'
@@ -765,5 +765,63 @@ export default function LibraryPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function LibraryPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                height: '28px',
+                width: '120px',
+                borderRadius: '8px',
+                background: 'var(--color-surface-700)',
+                marginBottom: '8px',
+              }}
+            />
+            <div
+              style={{
+                height: '16px',
+                width: '200px',
+                borderRadius: '6px',
+                background: 'var(--color-surface-700)',
+              }}
+            />
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gap: '16px',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+            }}
+          >
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  height: '200px',
+                  borderRadius: '12px',
+                  background: 'var(--color-surface-700)',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <LibraryContent />
+    </Suspense>
   )
 }

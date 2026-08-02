@@ -1,22 +1,25 @@
 'use client'
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  type TooltipProps,
-} from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import type { GenreStat } from '@/types/stats'
 
 interface GenreChartProps {
   genres: GenreStat[]
 }
 
-function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+// substitui a interface e função:
+interface TooltipPayload {
+  payload: GenreStat
+}
+
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: TooltipPayload[]
+}
+
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
-  const data = payload[0].payload as GenreStat
+  const data = payload[0].payload
 
   return (
     <div

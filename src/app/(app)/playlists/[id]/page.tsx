@@ -31,26 +31,26 @@ export default function PlaylistDetailPage({ params }: PageProps) {
   const playlist = getPlaylistById(id)
 
   // aguarda o cliente montar antes de renderizar
-  // evita hydration mismatch com dados do localStorage
   if (!mounted) return null
   if (!playlist) notFound()
 
-  const totalMinutes = Math.floor(playlist.totalDurationMs / 60000)
+  // a partir daqui o TypeScript precisa saber que playlist existe
+  const totalMinutes = Math.floor(playlist!.totalDurationMs / 60000)
 
   function handlePlayAll() {
-    if (playlist.tracks.length === 0) return
-    play(playlist.tracks[0], playlist.tracks)
+    if (playlist!.tracks.length === 0) return
+    play(playlist!.tracks[0], playlist!.tracks)
   }
 
   function handlePlayShuffled() {
-    if (playlist.tracks.length === 0) return
-    const shuffled = [...playlist.tracks].sort(() => Math.random() - 0.5)
+    if (playlist!.tracks.length === 0) return
+    const shuffled = [...playlist!.tracks].sort(() => Math.random() - 0.5)
     play(shuffled[0], shuffled)
   }
 
   function handleRemoveTrack() {
     if (!trackToRemove) return
-    removeTrack(playlist.id, trackToRemove.id)
+    removeTrack(playlist!.id, trackToRemove.id)
     setTrackToRemove(null)
   }
 
