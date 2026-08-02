@@ -38,3 +38,14 @@ export interface Playlist {
   isPublic: boolean
   totalDurationMs: number
 }
+
+export type TransferPlatform =
+  'spotify' | 'deezer' | 'apple_music' | 'youtube_music' | 'tidal'
+export type TransferStatus = 'idle' | 'analyzing' | 'completed' | 'error'
+export type TrackMatchStatus = 'matched' | 'not_found' | 'low_confidence'
+
+export interface TransferTrackResult {
+  track: Track
+  matchStatus: TrackMatchStatus
+  confidence: number // 0-1
+}
