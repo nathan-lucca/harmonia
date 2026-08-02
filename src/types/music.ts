@@ -26,3 +26,15 @@ export interface Track {
   genres: string[]
   isLiked: boolean
 }
+
+export interface Playlist {
+  id: string
+  name: string
+  description: string
+  coverUrl?: string
+  tracks: Track[]
+  createdAt: string
+  updatedAt: string
+  isPublic: boolean
+  totalDurationMs: number
+}
